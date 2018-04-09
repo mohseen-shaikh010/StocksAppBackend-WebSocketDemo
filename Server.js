@@ -8,9 +8,28 @@ var webSocketsServerPort = 1337;
 // websocket and http servers
 var webSocketServer = require('websocket').server;
 var http = require('http');
+var fs = require("fs");
 
 var history = [ ];  // latest 100 messages
 var clients = [ ];  //currently connected clients
+
+var http_files = {};
+   [
+       ["/jquery.min.js","application/javascript"],
+       ["/Stock-WebPortal.js","application/javascript"],
+       ["/frontend.html","text/html"],
+       ["/backend.html","text/html"]
+   ].forEach(function(fn){
+       http_files[fn[0]]={
+           content : fs.readFileSync('.'+fn[0]).toString(),
+           contentType : fn[1]
+       };
+   });
+
+   http_files["/"]=http_files["/frontend.html"];
+   http_files["/index.html"]=http_files["/frontend.html"];
+   http_files["/backend.html"]=http_files["/backend.html"];
+   http_files["/backend"]=http_files["/backend.html"];
 
 function handleHtmlEntities(str) {
     return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;')
@@ -19,12 +38,24 @@ function handleHtmlEntities(str) {
 
 //Http server
 var server = http.createServer(function(request, response) {
-    // Not important as of now. Becuase we will be using websocket servers
-    //Later, the API requests will be entertained by this
-});
-server.listen((process.env.PORT || webSocketServer), function() {
+        // this doubles as a way to serve the fies, and a connection for websocket to use
+        var file = http_files[request.url];
+        if (file) {
+            response.writeHeader(200,{"content-type" : file.contentType});
+            response.write(file.content);
+            return response.end();
+        }
+        response.writeHeader(404,{"content-type" : "text/plain"});
+        response.write("not found");
+        return response.end();
+
+    });
+
+
+
+  server.listen((process.env.PORT || webSocketServer), function() {
     console.log((new Date()) + " Server is listening on port " + process.env.PORT);
-});
+  });
 
 
 //WebSocket server
