@@ -22,7 +22,7 @@ var server = http.createServer(function(request, response) {
     // Not important as of now. Becuase we will be using websocket servers
     //Later, the API requests will be entertained by this
 });
-server.listen(webSocketsServerPort, function() {
+server.listen((process.env.PORT || webSocketServer), function() {
     console.log((new Date()) + " Server is listening on port " + process.env.PORT);
 });
 
