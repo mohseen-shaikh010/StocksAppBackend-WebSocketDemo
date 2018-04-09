@@ -19,7 +19,7 @@ $(function () {
     }
 
     // open connection
-    var connection = new WebSocket('ws://23.21.74.211:14484');
+    var connection = new WebSocket('ws://'+server.address().address+':'+process.env.PORT);
 
     connection.onopen = function () {
         // first we want users to enter their names
@@ -29,6 +29,7 @@ $(function () {
 
     connection.onerror = function (error) {
         // just in there were some problems with conenction...
+        console.log('ip is ---> ws://'+server.address().address+':'+process.env.PORT);
         content.html($('<p>', { text: 'Sorry, but there\'s some problem with your '
                                     + 'connection or the server is down.' } ));
     };
